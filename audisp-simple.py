@@ -17,7 +17,7 @@ import signal
 import sys
 import auparse
 import syslog
-import StringIO
+import io
 
 stop = 0
 hup = 0
@@ -25,13 +25,13 @@ au = None
 
 def term_handler(sig, msg):
         global stop 
-        print 'received a term event'
+        print('received a term event')
         stop = 1
         sys.exit(0)
 
 def hup_handler(sig, msg):
         global hup
-        print 'received a hup event'
+        print('received a hup event')
         hup = 1
 
 def reload_config():
@@ -67,7 +67,7 @@ def coolparse(au):
             event = au.get_timestamp()
             serial = event.serial
             if event is None:
-                print "Error getting timestamp - aborting"
+                print("Error getting timestamp - aborting")
                 sys.exit(1)
 
             au.first_field()
@@ -83,7 +83,7 @@ def coolparse(au):
                 syslog.openlog(programname)
                 syslog.syslog(syslog.LOG_NOTICE, contents )
                 serials.append(serial)
-                output = StringIO.StringIO()
+                output = io.StringIO()
                 output.write("serial=%s %s" % (serial, result.replace('\n','')))
         else:
                 if len(serials) == 0:
@@ -97,7 +97,7 @@ def main():
         global stop
         global hup
         serials = []
-        output = StringIO.StringIO()
+        output = io.StringIO()
         while stop == 0:
                 try:
                         #buf=sys.stdin.readlines()
@@ -108,7 +108,7 @@ def main():
                         for line in buf:
                                 au = auparse.AuParser(auparse.AUSOURCE_BUFFER, line)
                                 coolparse(au)
-                except IOError, e:
+                except IOError:
                         continue
                 #stop = 1
 
